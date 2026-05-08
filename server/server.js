@@ -53,4 +53,11 @@ app.use("/api/bookings", bookingRouter);
 
 // Server listen
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Only start the server if we're not running on Vercel
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Export for Vercel
+export default app;
