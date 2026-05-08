@@ -38,6 +38,16 @@ app.use("/api/user", userRouter);
 app.use("/api/owner", ownerRouter);
 app.use("/api/bookings", bookingRouter);
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Stack:", err.stack);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack
+  });
+});
+
 // Server listen
 const PORT = process.env.PORT || 4000;
 
