@@ -11,29 +11,33 @@ const app = express();
 console.log("Server starting...");
 
 // Connect Database
-await connectDB();
-console.log("Database connected");
+connectDB().catch(err => console.error("❌ Database connection error:", err));
 
 // CORS Configuration
 const allowedOrigins = [
-  "http://localhost:5173",                 // local development
-  "https://drive-now-blush.vercel.app",    // your deployed frontend
+  "http://localhost:5173",
+  "https://drive-now-blush.vercel.app",
+  // Add any other deployment URLs here
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without origin (Postman, Mobile apps)
+      // Allow requests without origin (Postman)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+        callback(null, true);
       } else {
+        // Instead of throwing an Error (which causes 500), 
+        // we just pass false to block it or log it.
         console.log("❌ CORS BLOCKED:", origin);
-        return callback(new Error("CORS Not Allowed"), false);
+        callback(null, false); 
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
@@ -42,7 +46,7 @@ app.use(express.json());
 
 // Request logger for debugging
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
   next();
 });
 
